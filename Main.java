@@ -7,6 +7,7 @@ public class Main {
         test.setUp();
         test.testHashMapSet();
         test.testDeletion();
+        test.testReplace();
         test.testHashMapCollisions();
 
     }

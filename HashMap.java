@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.IllegalFormatCodePointException;
+
 /**
  * HASHING FUNCTION:
  * In this implementation, I used Java's native hashCode() function, which
@@ -49,55 +51,43 @@ package com.company;
  * NOTE:(importance of rehashing)
  *     We need to "rehash" existing elements of the hash table
  *     into the bigger sized hash map to keep hash map evenly distributed.
- * @author Denis Kazakov <http://94kazakov.github.io/>
+ * @author Denis Kazakov <http://94kazakov.github.io/>\
+ * <T> - arbitrary object type
  */
-public class HashMap {
+public class HashMap<T> {
     private int ARRAY_SIZE;
-    private Node buckets[];
+    private NodeLinkedList<T>[] buckets;
     private int size; //counter for number of elements in the hashmap
 
     public HashMap(int size){
         this.size = 0;
-        if (size >= 0){
-            this.ARRAY_SIZE = size;
-            this.buckets = new Node[this.ARRAY_SIZE];
+        if (size > 0){
+            ARRAY_SIZE = size;
+            buckets = new NodeLinkedList[ARRAY_SIZE];
         } else{
             throw new IllegalArgumentException("Please set hash map size to be nonnegative" + size);
         }
     }
 
     /**
-     * Insert the key-value pair into the hash map
+     * Insert the key-value pair into the hash map array.
      * @param key - used to uniquely identify the key-value pair
      * @param value - reference to an object that we want to map
      */
-    public boolean set(String key, String value){
+    public boolean set(String key, T value){
         if (value == null || key == null){
             return false;
         }
-
-        //creating input that we will insert into our hash map
         int hash = hash(key);
-        Node input = new Node(key,value);
-
-        //insert input if bucket is empty
-        if(buckets[hash] == null){
-            buckets[hash] = input;
-            size ++;
-        }else{
-            //collision occurred, therefore we append input variable to linked list
-            Node runner = buckets[hash];
-            while(runner.getNext() != null){
-                //if given key already exists in the hash map, then we need to replace it to ensure no keys are repeated
-                if(runner.getKey().equals(input.getKey())){
-                    runner.setValue(input.getValue());
-                    return true;
-                }
-                runner = runner.getNext();
-            }
-            //given key is new and is appended onto the end of the bucket's linked list
-            runner.setNext(input);
-            size ++;
+        if (this.load() > 0.75) { //load value of 0.75 is a standard for chaining implementation
+            //TODO:doubleArray();
+        }
+        if (buckets[hash] == null) {
+            buckets[hash] = new NodeLinkedList<>();
+            buckets[hash].set(key, value);
+        } else {
+            NodeLinkedList<T> NodeLinkedList = buckets[hash];
+            NodeLinkedList.set(key, value);
         }
         return true;
     }
@@ -107,18 +97,14 @@ public class HashMap {
      * @param key - used to search for a value in hash map
      * @return value - reference to an object that we mapped
      */
-    public String get(String key){
-        int hash = hash(key);
-        //get the head of linked list
-        Node runner = buckets[hash];
-        //traverse linked list
-        while(runner != null){
-            if(runner.getKey().equals(key)){
-                return runner.getValue();
-            }
-            runner = runner.getNext();
+    public T get(String key){
+        if (key == null){
+            throw new IllegalArgumentException();
         }
-        //if key wasn't set:
+        int hash = hash(key);
+        if (buckets[hash] != null){
+            return buckets[hash].get(key);
+        }
         return null;
     }
 
@@ -127,36 +113,23 @@ public class HashMap {
      * @param key - used to search for a value in hash map
      * @return value - reference to an object that we mapped, null - if element didn't exist in the hash map
      */
-    public String delete(String key){
+    public T delete(String key) {
+        if (key == null){
+            throw new IllegalArgumentException();
+        }
         int hash = hash(key);
-        //get the head of linked list
-        Node runner = buckets[hash];
-        //if head is the key we are looking for, assign buckets[key] to a new head that is next element
-        if(runner.getKey().equals(key)){
-            buckets[hash] = runner.getNext();
-            size --;
-            return runner.getValue();
+        if (buckets[hash] != null) {
+            return buckets[hash].delete(key);
         }
-        //traverse linked list
-        while(runner.getNext() != null){
-            //if next element is what we are looking for, then we have to reassign the current pointer to the element after next
-            Node next = runner.getNext();
-            if(next.getKey().equals(key)){
-                runner.setNext(next.getNext());
-                size --;
-                return next.getValue();
-            }
-            runner = runner.getNext();
-        }
-        //if key wasn't set:
         return null;
     }
+
 
     /**
      * @return float value representing the load factor (`(items in hash map)/(size of hash map)`) of the data structure.
      */
     public float load(){
-        return (float) (size * 1.0 / buckets.length); 
+        return (float) (size * 1.0 / buckets.length);
     }
 
     /**
@@ -168,19 +141,116 @@ public class HashMap {
     }
 
     /**
+     * Singly Linked list class of Nodes that contain an arbitrary type object reference, key, next pointer.
+     */
+    private class NodeLinkedList<T> {
+        Node<T> head;
+
+        public Node<T> getHead() {
+            return head;
+        }
+
+        public void setHead(Node<T> head) {
+            this.head = head;
+        }
+
+        /**
+         * Insert the key-value pair into the linked list bucket. Because I chose chaining method, it is sufficient
+         * to only check for duplicate keys in whatever bucket our hash function produced.
+         * @param key - used to uniquely identify the key-value pair
+         * @param value - reference to an object that we want to map
+         */
+        private boolean set(String key, T value){
+            Node<T> input = new Node(key, value);
+            //insert input if bucket is empty
+            if(head == null){
+                size++;
+                head = input;
+            }else{
+                //collision occurred, therefore we append input variable to linked list
+                Node<T> runner = head;
+                while(runner != null){
+                    //if given key already exists in the hash map, then we need to replace it to ensure no keys are repeated
+                    if(runner.getKey().equals(key)){
+                        runner.setValue(value);
+                        return true;
+                    }
+                    runner = runner.getNext();
+                }
+                //given key is new and is appended onto the end of the bucket's linked list
+                input.setNext(input);
+                head = input;
+                size++;
+            }
+            return true;
+        }
+
+        /**
+         * Deletes the element for a given key and returns it.
+         * @param key - used to search for a value in hash map
+         * @return value - reference to an object that we mapped, null - if element didn't exist in the hash map
+         */
+        private T delete(String key){
+            int hash = hash(key);
+            //get the head of linked list
+            Node<T> runner = head;
+            //if head is the key we are looking for, assign buckets[key] to a new head that is next element
+            if(runner.getKey().equals(key)){
+                head = runner.getNext();
+                size --;
+                return runner.getValue();
+            }
+            //traverse linked list
+            while(runner.getNext() != null){
+                //if next element is what we are looking for, then we have to reassign the current pointer to the element after next
+                Node<T> next = runner.getNext();
+                if(next.getKey().equals(key)){
+                    runner.setNext(next.getNext());
+                    size--;
+                    return next.getValue();
+                }
+                runner = runner.getNext();
+            }
+            //if key wasn't set:
+            return null;
+        }
+
+        /**
+         * Returns the value that is mapped to the given key.
+         * @param key - used to search for a value in hash map
+         * @return value - reference to an object that we mapped
+         */
+        private T get(String key){
+            int hash = hash(key);
+            //get the head of linked list
+            Node<T> runner = head;
+            //traverse linked list
+            while(runner != null){
+                if(runner.getKey().equals(key)){
+                    return runner.getValue();
+                }
+                runner = runner.getNext();
+            }
+            //if key wasn't set:
+            return null;
+        }
+
+    }
+
+    /**
      * Node is a key-value object that we store in our hash map, where value is
      * just a reference to an object. Node object has key, value, pointer to
      * the next element of bucket's linked list.
      */
-    private class Node{
+    private class Node<T> {
         private String key;
-        private String value;
+        private T value;
         private Node next;
 
         public Node(){
         }
 
-        public Node(String key, String value){
+        public Node(String key, T value){
             this.key = key;
             this.value = value;
         }
@@ -193,11 +263,11 @@ public class HashMap {
             this.key = key;
         }
 
-        public String getValue() {
+        public T getValue() {
             return value;
         }
 
-        public void setValue(String value) {
+        public void setValue(T value) {
             this.value = value;
         }
 

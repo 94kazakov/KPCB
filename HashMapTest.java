@@ -27,8 +27,14 @@ public class HashMapTest {
         String k = "TestsetGet";
         String v = "TestsetGetValue";
         hashMap.set(k, v);
-        String valueResult = hashMap.get(k);
-        assertEquals(v, valueResult);
+        assertEquals(v, hashMap.get(k));
+    }
+
+    @Test
+    public void testReplace() {
+        hashMap.set("a", 0);
+        hashMap.set("a", 1);
+        assertEquals(new Integer(1), hashMap.get("a"));
     }
 
     @Test
@@ -39,9 +45,7 @@ public class HashMapTest {
         }
         /* Test all values of the get method */
         for(int i = 0; i < NUM_ELEMENTS; i++){
-            String value = hashMap.get(Integer.toString(i));
-            assertEquals(Integer.toString(i), value);
-            System.out.println(value);
+            assertEquals(Integer.toString(i), hashMap.get(Integer.toString(i)));
         }
     }
 
@@ -50,10 +54,8 @@ public class HashMapTest {
         String k = "TestsetGet";
         String v = "TestsetGetValue";
         hashMap.set(k, v);
-        String valueResult = hashMap.delete(k);
-        String deleted = hashMap.get(k); //supposed to be null
-        assertEquals(v, valueResult);
-        assertEquals(null , deleted);
+        assertEquals(v, hashMap.delete(k));
+        assertEquals(null , hashMap.get(k));
     }
 
     @After
