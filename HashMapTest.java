@@ -17,15 +17,12 @@ public class HashMapTest {
         hashMap = new HashMap(20000);
     }
 
-    @Test
-    public void testHashMapSet(){
-        hashMap.set("Test1", "Test1Value");
-    }
 
     @Test
-    public void testsetGet(){
+    public void testSetGet(){
         hashMap.set("a", 1);
         assertEquals(1, hashMap.get("a"));
+        hashMap.delete("a");
     }
 
     @Test
@@ -33,15 +30,7 @@ public class HashMapTest {
         hashMap.set("b", 0);
         hashMap.set("b", 1);
         assertEquals(new Integer(1), hashMap.get("b"));
-    }
-
-    @Test
-    public void testDeletion() {
-        String k = "TestsetGet";
-        String v = "TestsetGetValue";
-        hashMap.set(k, v);
-        assertEquals(v, hashMap.delete(k));
-        assertEquals(null , hashMap.get(k));
+        hashMap.delete("b");
     }
 
     @Test
@@ -54,6 +43,21 @@ public class HashMapTest {
         for(int i = 0; i < NUM_ELEMENTS; i++){
             assertEquals(Integer.toString(i), hashMap.get(Integer.toString(i)));
         }
+
+        for(int i = 0; i < NUM_ELEMENTS; i++){
+            hashMap.delete(Integer.toString(i));
+            assertEquals(null, hashMap.get(Integer.toString(i)));
+        }
+        assertEquals(0, hashMap.size);
+    }
+
+    @Test
+    public void testDeletion() {
+        String k = "TestsetGet";
+        String v = "TestsetGetValue";
+        hashMap.set(k, v);
+        assertEquals(v, hashMap.delete(k));
+        assertEquals(null , hashMap.get(k));
     }
 
     @After

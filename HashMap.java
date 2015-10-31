@@ -1,7 +1,4 @@
 package com.company;
-
-import java.util.IllegalFormatCodePointException;
-
 /**
  * HASHING FUNCTION:
  * In this implementation, I used Java's native hashCode() function, which
@@ -9,9 +6,12 @@ import java.util.IllegalFormatCodePointException;
  * [2]:http://docs.oracle.com/javase/6/docs/api/java/lang/String.html#hashCode()
  *
  * INTERPRETATION:
- * 1) "Fixed-size hash map" was interpreted as that it holds a fixed number of
+ * "Fixed-size hash map" was interpreted as that it holds a fixed number of
  * elements, however internal structure of the map can be modified. Therefore,
- * I will implement doubling the size function and rehashing.
+ * we don't need to implement methods of:
+ * double() - doubling size of our hash map,
+ * rehash() - rehash our map into a bigger sized array to preserve uniform
+ * distribution of elements.
  *
  * COLLISION RESOLUTION:
  * In this implementation, I am using Chained Hashing. At a given key, Chained
@@ -60,7 +60,7 @@ import java.util.IllegalFormatCodePointException;
 public class HashMap<T> {
     private int ARRAY_SIZE;
     private NodeLinkedList<T>[] buckets;
-    private int size; //counter for number of elements in the hashmap
+    int size; //counter for number of elements in the hashmap
 
     public HashMap(int size){
         this.size = 0;
@@ -82,8 +82,11 @@ public class HashMap<T> {
             return false;
         }
         int hash = hash(key);
-        if (this.load() > 0.75) { //load value of 0.75 is a standard for chaining implementation
-            //TODO:doubleArray();
+        if (this.load() == 1) {
+            /*load value of 0.75 would have been used to trigger doubling the size and rehashing
+              if we were building hash map that is not fixed size*/
+            System.out.println("You have exceeded the capacity of a hash map you declared. Use .delete() to remove elements");
+            return false;
         }
         if (buckets[hash] == null) {
             buckets[hash] = new NodeLinkedList<>();
@@ -180,8 +183,8 @@ public class HashMap<T> {
                     }
                     runner = runner.getNext();
                 }
-                //given key is new and is appended onto the end of the bucket's linked list
-                input.setNext(input);
+                //given key is new and is appended onto the beginning of the bucket's linked list
+                input.setNext(head);
                 head = input;
                 size++;
             }
