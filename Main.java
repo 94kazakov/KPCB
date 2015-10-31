@@ -6,6 +6,7 @@ public class Main {
         HashMapTest test = new HashMapTest();
         test.setUp();
         test.testHashMapSet();
+        test.testDeletion();
         test.testHashMapCollisions();
 
     }

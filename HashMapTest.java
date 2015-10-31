@@ -14,7 +14,8 @@ public class HashMapTest {
 
     @Before
     public void setUp(){
-        hashMap = new HashMap();
+        //hash map size is deliberately 10x times less than number of elements to test hash map's performance with linked lists
+        hashMap = new HashMap(20000);
     }
 
     @Test
@@ -43,6 +44,17 @@ public class HashMapTest {
             assertEquals(Integer.toString(i), value);
             System.out.println(value);
         }
+    }
+
+    @Test
+    public void testDeletion() {
+        String k = "TestsetGet";
+        String v = "TestsetGetValue";
+        hashMap.set(k, v);
+        String valueResult = hashMap.delete(k);
+        String deleted = hashMap.get(k); //supposed to be null
+        assertEquals(v, valueResult);
+        assertEquals(null , deleted);
     }
 
     @After
