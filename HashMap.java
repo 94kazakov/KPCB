@@ -17,6 +17,15 @@ import java.util.IllegalFormatCodePointException;
  * In this implementation, I am using Chained Hashing. At a given key, Chained
  * hashing stores a head reference to a linked list of keys (a "bucket").
  *
+ * COMPLEXITY:
+ *     When hashing function is evenly distributed across the length of the
+ *     array, runtime performance doesn't suffer much, because we are protected
+ *     probabilistically from the "clustering effect" (when we keep storing
+ *     values at specific "cluster" of buckets, ignoring the empty buckets).
+ *     Thus, our performance for set(), get(), delete() should probabilistically
+ *     remain O(1). Worst-case complexity O(N), which would happen
+ *     if all keys produced the same hash value.
+ *
  * NOTE:(choice of collision resolution)
  *     There are two main ways to resolve collision conflicts in the hash map:
  *     1) Sampling methods:
@@ -41,12 +50,6 @@ import java.util.IllegalFormatCodePointException;
  *     Since Java automatically collects and deallocates elements that are not
  *     reachable, we don't have to worry about malloc and dealloc as long as we
  *     properly delete elements.
- *
- * NOTE:(importance of evenly distributed hash function)
- *     When hashing function is evenly distributed across the length of the
- *     arrray, runtime performance doesn't suffer much, because we are protected
- *     probabilistically from the "clustering effect" (when we keep storing
- *     values at specific "cluster" of buckets, ignoring the empty buckets).
  *
  * NOTE:(importance of rehashing)
  *     We need to "rehash" existing elements of the hash table
