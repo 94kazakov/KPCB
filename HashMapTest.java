@@ -24,17 +24,24 @@ public class HashMapTest {
 
     @Test
     public void testsetGet(){
-        String k = "TestsetGet";
-        String v = "TestsetGetValue";
-        hashMap.set(k, v);
-        assertEquals(v, hashMap.get(k));
+        hashMap.set("a", 1);
+        assertEquals(1, hashMap.get("a"));
     }
 
     @Test
-    public void testReplace() {
-        hashMap.set("a", 0);
-        hashMap.set("a", 1);
-        assertEquals(new Integer(1), hashMap.get("a"));
+    public void testReplacement() {
+        hashMap.set("b", 0);
+        hashMap.set("b", 1);
+        assertEquals(new Integer(1), hashMap.get("b"));
+    }
+
+    @Test
+    public void testDeletion() {
+        String k = "TestsetGet";
+        String v = "TestsetGetValue";
+        hashMap.set(k, v);
+        assertEquals(v, hashMap.delete(k));
+        assertEquals(null , hashMap.get(k));
     }
 
     @Test
@@ -49,18 +56,10 @@ public class HashMapTest {
         }
     }
 
-    @Test
-    public void testDeletion() {
-        String k = "TestsetGet";
-        String v = "TestsetGetValue";
-        hashMap.set(k, v);
-        assertEquals(v, hashMap.delete(k));
-        assertEquals(null , hashMap.get(k));
-    }
-
     @After
     public void tearDown(){
         hashMap = null;
+        System.gc();
     }
 }
 
