@@ -10,11 +10,10 @@ import static org.junit.Assert.*;
 public class HashMapTest {
 
     private HashMap hashMap;
-    private final int NUM_ELEMENTS = 200000;
+    private final int NUM_ELEMENTS = 20000;
 
     @Before
     public void setUp(){
-        //hash map size is deliberately 10x times less than number of elements to test hash map's performance with linked lists
         hashMap = new HashMap(20000);
     }
 

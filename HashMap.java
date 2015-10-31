@@ -6,17 +6,14 @@ package com.company;
  * is: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]                          [2]
  * [2]:http://docs.oracle.com/javase/6/docs/api/java/lang/String.html#hashCode()
  *
- * ITEMS IN HASH MAP INTERPRETATION:
- * Typical Hash Map objects are able to map multiple objects to the same key value.
- * Example: in Python
- *
+ * INTERPRETATION:
+ * 1) "Fixed-size hash map" was interpreted as that it holds a fixed number of
+ * elements, however internal structure of the map can be modified. Therefore,
+ * I will implement doubling the size function and rehashing.
  *
  * COLLISION RESOLUTION:
- * In this implementation, I am using Chained Hashing. Chained Hashing maximizes
- * the space efficiency at the cost of sacrificing runtime efficiency. This
- * benefits us, since our hash map has to be "fixed size".
- * At a given key, Chained hashing stores a head reference to a linked list of
- * keys (a "bucket").
+ * In this implementation, I am using Chained Hashing. At a given key, Chained
+ * hashing stores a head reference to a linked list of keys (a "bucket").
  *
  * NOTE:(choice of collision resolution)
  *     There are two main ways to resolve collision conflicts in the hash map:
@@ -32,9 +29,9 @@ package com.company;
  *             that exists at a given key
  *             Example: chaining hashing performance
  *                 average lookup time is: 1 + ?/2                           [1]
- *     Therefore, we conclude that because of fixed size constraint, we are
- *     better off using Chaining method, because it will maintain decent
- *     performance even when the load factor becomes large.
+ *     Therefore, we conclude that we are better off using Chaining method,
+ *     because it will maintain decent performance even when the load factor
+ *     becomes large.
  *     Reference:
  *     [1]:slide 9, https://www.cs.cmu.edu/~tcortina/15-121sp10/Unit08B.pdf
  *
@@ -50,9 +47,7 @@ package com.company;
  *     values at specific "cluster" of buckets, ignoring the empty buckets).
  *
  * NOTE:(importance of rehashing)
- *     Due to fixed size constraint, we can't use the load factor to tell us
- *     when we should increase the size of the hash table. However, if we had
- *     that opportunity, we would "rehash" existing elements of the hash table
+ *     We need to "rehash" existing elements of the hash table
  *     into the bigger sized hash map to keep hash map evenly distributed.
  * @author Denis Kazakov <http://94kazakov.github.io/>
  */
@@ -88,11 +83,12 @@ public class HashMap {
         //insert input if bucket is empty
         if(buckets[hash] == null){
             buckets[hash] = input;
+            size ++;
         }else{
             //collision occurred, therefore we append input variable to linked list
             Node runner = buckets[hash];
             while(runner.getNext() != null){
-                //if given key already exists in the hash map, then we simply replace it with a new given value
+                //if given key already exists in the hash map, then we need to replace it to ensure no keys are repeated
                 if(runner.getKey().equals(input.getKey())){
                     runner.setValue(input.getValue());
                     return true;
@@ -101,6 +97,7 @@ public class HashMap {
             }
             //given key is new and is appended onto the end of the bucket's linked list
             runner.setNext(input);
+            size ++;
         }
         return true;
     }
@@ -137,6 +134,7 @@ public class HashMap {
         //if head is the key we are looking for, assign buckets[key] to a new head that is next element
         if(runner.getKey().equals(key)){
             buckets[hash] = runner.getNext();
+            size --;
             return runner.getValue();
         }
         //traverse linked list
@@ -145,6 +143,7 @@ public class HashMap {
             Node next = runner.getNext();
             if(next.getKey().equals(key)){
                 runner.setNext(next.getNext());
+                size --;
                 return next.getValue();
             }
             runner = runner.getNext();
@@ -157,7 +156,7 @@ public class HashMap {
      * @return float value representing the load factor (`(items in hash map)/(size of hash map)`) of the data structure.
      */
     public float load(){
-        return 0; //TODO: #of items/size of map
+        return (float) (size * 1.0 / buckets.length); 
     }
 
     /**
